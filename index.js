@@ -30,9 +30,10 @@ const User = mongoose.model("User", userSchema);
 
 const exerciseSchema = new Schema({
   username: { type: String, required: true },
-  description: String,
-  duration: Number,
-  date: String
+  description: { type: String, required: true },
+  duration: { type: Number, required: true },
+  date: { type: String, required: true },
+  user_id: { type: String, required: true}
 });
 const Exercise = mongoose.model("Exercise", exerciseSchema);
 
@@ -45,6 +46,44 @@ app.post("/api/users", (req, res) => {
     res.json({
       username: data.username,
       _id: data['_id'].toString()
+    });
+  }).catch((err) => {
+    console.error(err);
+    res.json({ error: "error saving user" });
+  });
+});
+
+//let uid = "64344efc41b9459b6ab70392"; //Jaebirds user id
+
+app.post("/api/users/:id/exercises", (req, res) => {
+
+  if (!mongoose.isValidObjectId(req.body[':_id'])) {
+    res.json({ error: "error: not a valid id" });
+  }
+
+  date = new Date(req.body.date);
+
+  User.findOne({ _id: req.body[':_id'] }).then((user) => {
+  
+    let exerciseToSave = new Exercise({
+      username: user.username,
+      description: req.body.description,
+      duration: req.body.duration,
+      date: date.toDateString(),
+      user_id: req.body[':_id']
+    });
+    exerciseToSave.save().then((data) => {
+      console.log("saved exercise:", data);
+      res.json({
+        _id: req.body[':_id'],
+        usename: data.username,
+        date: data.date,
+        duration: data.duration,
+        description: data.description
+      });
+    }).catch((err) => {
+      console.error(err);
+      res.json({ error: "error saving exercise" });
     });
   }).catch((err) => {
     console.error(err);

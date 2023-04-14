@@ -63,7 +63,7 @@ app.post("/api/users/:id/exercises", (req, res) => {
   let date;
   if (req.body.date) {
     date = new Date(req.body.date);
-    // date off by 1
+    // date off by 1, doesn't need this when running on replit
     let days = date.getDate();
     date.setDate(days + 1);
   } else
